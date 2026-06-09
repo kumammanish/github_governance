@@ -60,6 +60,50 @@ $$\text{Health Score} = (\text{Compliance} \times 0.4) + (\text{Pipeline Success
 
 ---
 
+## 🧮 Metrics Calculation Logic
+
+The application calculates compliance and overall health dynamically for each repository. Below is the detailed logic:
+
+### 1. Compliance Percentage
+The **Compliance Score** represents the percentage of key governance policies currently met by the repository. There are **6 controls**, each evaluated as a boolean (`true`/`false`) and weighted equally (**16.67% each**):
+
+$$\text{Compliance Score} = \text{Math.round}\left(\frac{\text{Passed Controls}}{6} \times 100\right)$$
+
+The audited controls are:
+*   **Branch Protection**: Verifies if branch protection is enabled on the repository's default branch.
+*   **Required Pull Request Reviews**: Verifies if pull requests require at least one approving review before merging.
+*   **Signed Commits**: Verifies if signature verification is required for commits on the protected branch.
+*   **CODEOWNERS**: Detects if a valid `CODEOWNERS` file is present in either the root directory, `.github/` folder, or `docs/` folder.
+*   **Strict Status Checks**: Confirms that target branches must be up-to-date with testing suites before merging.
+*   **No Auto-Merge**: Recommends leaving GitHub's auto-merge disabled to ensure human oversight (`allow_auto_merge` is false).
+
+### 2. Pipeline Success Rate
+The build stability metric evaluates the **last 10 workflow runs** from GitHub Actions:
+
+$$\text{Pipeline Success Rate} = \text{Math.round}\left(\frac{\text{Total Runs} - \text{Failed Runs}}{\text{Total Runs}} \times 100\right)$$
+
+*   Runs with a conclusion of `"failure"` are flagged as failed.
+*   **Note**: If a repository has no workflow runs, this value defaults to **70%** (`successRate ?? 70`).
+
+### 3. Critical Alert Penalty
+Unresolved critical vulnerability alerts introduce a direct penalty to the health score:
+*   Includes **Critical** severity alerts from Dependabot and Secret Scanning.
+*   Each unresolved critical alert incurs a **15 point penalty**.
+*   The total penalty is capped at **30 points** (e.g., 2 or more critical alerts):
+
+$$\text{Alert Penalty} = \text{Math.min}(\text{Critical Alerts Count} \times 15, 30)$$
+
+### 4. Composite Health Score (Health Percentage)
+The overall repository **Health Score** is a weighted combination of compliance, pipelines, and alert status. It ranges from **0% to 100%**:
+
+$$\text{Health Score} = \text{Math.max}\left(0, \text{Math.round}\left((\text{Compliance Score} \times 0.4) + (\text{Pipeline Success Rate} \times 0.3) + (30 - \text{Alert Penalty})\right)\right)$$
+
+*   **Compliance Posture (40% Weight)**: Derived from the Compliance Score.
+*   **Pipeline Build Stability (30% Weight)**: Derived from the Pipeline Success Rate.
+*   **Zero Critical Alerts Guarantee (30% Weight)**: Starts at 30 points, and is reduced by the calculated Alert Penalty.
+
+---
+
 ## 🚀 Getting Started
 
 ### 📋 Prerequisites
