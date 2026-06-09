@@ -806,12 +806,12 @@ function SecurityView({ repos }) {
 // ─────────────────────────────────────────────────────────────────────────────
 function ComplianceView({ repos }) {
   const controls = [
-    { key: "branchProtection", label: "Branch Protection", icon: "🔒" },
-    { key: "requiredReviews", label: "Required Reviews", icon: "👁" },
-    { key: "signedCommits", label: "Signed Commits", icon: "✍️" },
-    { key: "codeOwners", label: "CODEOWNERS", icon: "📋" },
-    { key: "statusChecks", label: "Status Checks", icon: "✅" },
-    { key: "autoMergeDisabled", label: "Auto-merge Off", icon: "🚫" },
+    { key: "branchProtection", label: "Branch Protection", shortLabel: "Branch Prot", icon: "🔒" },
+    { key: "requiredReviews", label: "Required Reviews", shortLabel: "Req Reviews", icon: "👁" },
+    { key: "signedCommits", label: "Signed Commits", shortLabel: "Signed Commits", icon: "✍️" },
+    { key: "codeOwners", label: "CODEOWNERS", shortLabel: "Codeowners", icon: "📋" },
+    { key: "statusChecks", label: "Status Checks", shortLabel: "Status Checks", icon: "✅" },
+    { key: "autoMergeDisabled", label: "Auto-merge Off", shortLabel: "No Auto-Merge", icon: "🚫" },
   ];
 
   const fullyCompliant = repos.filter(r => r._enriched?.complianceScore === 100).length;
@@ -826,16 +826,19 @@ function ComplianceView({ repos }) {
       </div>
 
       <div style={{ width: "100%", overflowX: "auto", borderRadius: 14, border: `1px solid ${T.border}`, boxShadow: "0 4px 6px -1px rgba(15, 23, 42, 0.02)" }}>
-        <div style={{ minWidth: 800 }}>
-          <div style={{ display: "grid", gridTemplateColumns: `2fr repeat(${controls.length}, 1fr) 100px`, background: T.bg3, padding: "12px 18px", gap: 8, borderBottom: `1px solid ${T.border}` }}>
+        <div style={{ minWidth: 850 }}>
+          <div style={{ display: "grid", gridTemplateColumns: `2fr repeat(${controls.length}, 1.2fr) 100px`, background: T.bg3, padding: "12px 18px", gap: 8, borderBottom: `1px solid ${T.border}`, alignItems: "center" }}>
             <div style={{ color: T.text2, fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase" }}>Repository</div>
             {controls.map(c => (
-              <div key={c.key} title={c.label} style={{ color: T.text2, fontSize: 13, fontWeight: 700, textAlign: "center" }}>{c.icon}</div>
+              <div key={c.key} title={c.label} style={{ color: T.text2, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, textAlign: "center" }}>
+                <span style={{ fontSize: 14 }}>{c.icon}</span>
+                <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: "0.02em", textTransform: "uppercase", color: T.text1, textAlign: "center", display: "block", width: "100%", whiteSpace: "normal", wordBreak: "break-word" }}>{c.shortLabel}</span>
+              </div>
             ))}
             <div style={{ color: T.text2, fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", textAlign: "right", paddingRight: 10 }}>Score</div>
           </div>
           {repos.map((r, i) => (
-            <div key={r.name} style={{ display: "grid", gridTemplateColumns: `2fr repeat(${controls.length}, 1fr) 100px`, padding: "14px 18px", gap: 8, borderTop: i > 0 ? `1px solid ${T.border}` : "none", background: i % 2 === 0 ? T.bg1 : "#fafbfc", alignItems: "center" }}>
+            <div key={r.name} style={{ display: "grid", gridTemplateColumns: `2fr repeat(${controls.length}, 1.2fr) 100px`, padding: "14px 18px", gap: 8, borderTop: i > 0 ? `1px solid ${T.border}` : "none", background: i % 2 === 0 ? T.bg1 : "#fafbfc", alignItems: "center" }}>
               <div style={{ color: T.text0, fontSize: 13, fontWeight: 700 }}>{r.name}</div>
               {controls.map(c => (
                 <div key={c.key} style={{ textAlign: "center", fontSize: 15 }}>
